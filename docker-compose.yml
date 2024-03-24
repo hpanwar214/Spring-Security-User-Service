@@ -1,0 +1,29 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres  # Replace with a strong password
+    ports:
+      - "5432:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data  # Optional (persist data)
+    command: ["postgres", "-d", "-f", "/docker-entrypoint-initdb.d/init.sql"]
+  kafka:
+    image: kafka:latest
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: 'true'  # Not recommended for production
+    ports:
+      - "9092:9092"
+  apica-uservice:
+    image: apica-uservice:latest  # Replace with your image name
+    environment:
+      # ... (your application environment variables)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/apica
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - kafka
